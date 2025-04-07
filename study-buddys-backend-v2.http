@@ -1,0 +1,6 @@
+@study_buddys_backend_v2_HostAddress = http://localhost:5258
+
+GET {{study_buddys_backend_v2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
