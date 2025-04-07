@@ -136,30 +136,28 @@ namespace study_buddys_backend_v2.Services
             return await _dataContext.SaveChangesAsync() != 0;
         }
 
-        public async Task<bool> AddCommunityToUserAsync(int userId, List<int>? owned, List<int>? joined, List<int>? requests)
+        public async Task<bool> AddCommunityToUserAsync(int userId, int communityId)
         {
-            // Ensure the user exists
-            UserModels user = await GetUserByIdAsync(userId);
-            if (user == null) return false;
+            // Retrieve the user by ID
+            var user = await GetUserByIdAsync(userId);
 
-            // Add the communities to the user if they are not null
-            if (owned != null && owned.Any())
-            {
-                user.OwnedCommunitys.AddRange(owned);
-            }
-            if (joined != null && joined.Any())
-            {
-                user.JoinedCommunitys.AddRange(joined);
-            }
-            if (requests != null && requests.Any())
-            {
-                user.CommunityRequests.AddRange(requests);
-            }
+            if (user == null) return false; // If user doesn't exist, return false
 
-            // Update the user and save changes to the database
+            // Initialize the lists if they are null
+            user.OwnedCommunitys ??= new List<int>();
+            user.JoinedCommunitys ??= new List<int>();
+            user.CommunityRequests ??= new List<int>();
+
+            user.JoinedCommunitys.Add(communityId);  // Change this based on which list you want to add the community to
+
+            // Save changes to the database
             _dataContext.Users.Update(user);
-            return await _dataContext.SaveChangesAsync() != 0;
+
+            // Return true if changes were saved successfully, otherwise false
+            return await _dataContext.SaveChangesAsync() > 0;
         }
+
+
 
         public async Task<bool> RemoveCommunityFromUserAsync(int userId, int communityId)
         {

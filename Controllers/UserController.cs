@@ -69,9 +69,9 @@ namespace study_buddys_backend_v2.Controllers
         }
 
         [HttpPost("AddCommunityToUser/{id}")]
-        public async Task<IActionResult> AddCommunityToUser(int id, [FromBody] AddCommunityDTO addCommunity)
+        public async Task<IActionResult> AddCommunityToUser(int id, int communityId)
         {
-            var success = await _userServices.AddCommunityToUserAsync(id, addCommunity.OwnedCommunityIds, addCommunity.JoinedCommunityIds, addCommunity.CommunityRequestIds);
+            var success = await _userServices.AddCommunityToUserAsync(id, communityId);
 
             if (!success)
             {
@@ -79,6 +79,7 @@ namespace study_buddys_backend_v2.Controllers
             }
             return Ok(new { Success = true, Message = "Community added to user successfully" });
         }
+
 
         [HttpDelete("RemoveCommunityFromUser/{id}/{communityId}")]
         public async Task<IActionResult> RemoveCommunityFromUser(int id, int communityId)
