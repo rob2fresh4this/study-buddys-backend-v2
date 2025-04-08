@@ -14,7 +14,7 @@ This endpoint retrieves a list of all users from the backend.
 
 # API currently down
 
-- dates [4/8/25]/[ongoing]
+- dates [4/7/25]/[4/8/25]
 
 #### Example Request:
 ```http
