@@ -84,16 +84,17 @@ namespace study_buddys_backend_v2.Services
             return await _dataContext.Users.SingleOrDefaultAsync(x => x.Username == username);
         }
 
-        // public string serverUrl = "https://study-buddys-backend.azurewebsites.net";
-        public string serverUrl = "https://localhost:5233/"; // Localhost URL for testing
+        public string serverUrl = "https://study-buddys-backend.azurewebsites.net";
+        public string serverUrl2 = "https://studybuddies-g9bmedddeah6aqe7.westus-01.azurewebsites.net/"; // Localhost URL for testing
+        public string localUrl = "https://localhost:5233/"; // Localhost URL for testing
 
         private string GenerateJWTToken(List<Claim> claims)
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Key"]));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var tokenOptions = new JwtSecurityToken(
-                issuer: serverUrl,
-                audience: serverUrl,
+                issuer: serverUrl2,
+                audience: serverUrl2,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: signinCredentials

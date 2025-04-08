@@ -34,6 +34,7 @@ var secretKey = builder.Configuration["Jwt:Key"];
 var signingCredentials = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 string serverUrl = "https://study-buddys-backend.azurewebsites.net/"; // Server URL for production
+string serverUrl2 = "";
 string localHostUrl = "https://localhost:5233/"; // Localhost URL for testing
 
 builder.Services.AddAuthentication(options =>
