@@ -34,7 +34,7 @@ var secretKey = builder.Configuration["Jwt:Key"];
 var signingCredentials = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 string serverUrl = "https://study-buddys-backend.azurewebsites.net/"; // Server URL for production
-string serverUrl2 = "";
+string serverUrl2 = "https://studybuddies-g9bmedddeah6aqe7.westus-01.azurewebsites.net/";
 string localHostUrl = "https://localhost:5233/"; // Localhost URL for testing
 
 builder.Services.AddAuthentication(options =>
@@ -53,14 +53,16 @@ builder.Services.AddAuthentication(options =>
         ValidIssuers = new List<string>
         {
             serverUrl,
-            localHostUrl
+            localHostUrl,
+            serverUrl2
         },
 
         // Allow multiple audiences
         ValidAudiences = new List<string>
         {
             serverUrl,
-            localHostUrl
+            localHostUrl,
+            serverUrl2
         },
         IssuerSigningKey = signingCredentials
     };
