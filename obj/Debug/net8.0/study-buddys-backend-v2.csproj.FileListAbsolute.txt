@@ -157,3 +157,6 @@ C:/Users/grijr/VScode/CodeStack 24-25/Season 4 Fullstack Pratice/study-buddys-ba
 C:/Users/grijr/VScode/CodeStack 24-25/Season 4 Fullstack Pratice/study-buddys-backend-v2/obj/Debug/net8.0/study-buddys-backend-v2.pdb
 C:/Users/grijr/VScode/CodeStack 24-25/Season 4 Fullstack Pratice/study-buddys-backend-v2/obj/Debug/net8.0/study-buddys-backend-v2.genruntimeconfig.cache
 C:/Users/grijr/VScode/CodeStack 24-25/Season 4 Fullstack Pratice/study-buddys-backend-v2/obj/Debug/net8.0/ref/study-buddys-backend-v2.dll
+C:\Users\grijr\VScode\CodeStack 24-25\Season 4 Fullstack Pratice\study-buddys-backend-v2\obj\Debug\net8.0\study-buddys-backend-v2.dll
+C:\Users\grijr\VScode\CodeStack 24-25\Season 4 Fullstack Pratice\study-buddys-backend-v2\obj\Debug\net8.0\refint\study-buddys-backend-v2.dll
+C:\Users\grijr\VScode\CodeStack 24-25\Season 4 Fullstack Pratice\study-buddys-backend-v2\obj\Debug\net8.0\study-buddys-backend-v2.pdb
