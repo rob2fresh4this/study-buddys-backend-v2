@@ -185,10 +185,10 @@ namespace study_buddys_backend_v2.Services
         }
 
 
-        public async Task<UserInfoDTO> GetAllUserInfoAsync(int userId)
+        public async Task<UserInfoDTO> GetAllUserInfoAsync(string userName)
         {
             var user = await _dataContext.Users
-                .Where(u => u.Id == userId)
+                .Where(u => u.Username == userName)
                 .FirstOrDefaultAsync();
 
             if (user == null)

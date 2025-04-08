@@ -29,10 +29,10 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Users = users });
         }
 
-        [HttpGet("getUserInfo/{id}")]
-        public async Task<IActionResult> GetUserInfo(int id)
+        [HttpGet("getUserInfo/{username}")]
+        public async Task<IActionResult> GetUserInfo(string username)
         {
-            var userInfo = await _userServices.GetAllUserInfoAsync(id);
+            var userInfo = await _userServices.GetAllUserInfoAsync(username);
 
             if (userInfo == null)
                 return NotFound(new { Success = false, Message = "User not found" });
