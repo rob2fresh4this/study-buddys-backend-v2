@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\grijr\\VScode\\CodeStack 24-25\\Season 4 Fullstack Pratice\\study-buddys-backend-v2\\study-buddys-backend-v2.csproj": {}
+    "/Users/davidmonterrosa/Desktop/CodeStack/StudyBuddies/study-buddys-backend-v2/study-buddys-backend-v2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\grijr\\VScode\\CodeStack 24-25\\Season 4 Fullstack Pratice\\study-buddys-backend-v2\\study-buddys-backend-v2.csproj": {
+    "/Users/davidmonterrosa/Desktop/CodeStack/StudyBuddies/study-buddys-backend-v2/study-buddys-backend-v2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\grijr\\VScode\\CodeStack 24-25\\Season 4 Fullstack Pratice\\study-buddys-backend-v2\\study-buddys-backend-v2.csproj",
+        "projectUniqueName": "/Users/davidmonterrosa/Desktop/CodeStack/StudyBuddies/study-buddys-backend-v2/study-buddys-backend-v2.csproj",
         "projectName": "study-buddys-backend-v2",
-        "projectPath": "C:\\Users\\grijr\\VScode\\CodeStack 24-25\\Season 4 Fullstack Pratice\\study-buddys-backend-v2\\study-buddys-backend-v2.csproj",
-        "packagesPath": "C:\\Users\\grijr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\grijr\\VScode\\CodeStack 24-25\\Season 4 Fullstack Pratice\\study-buddys-backend-v2\\obj\\",
+        "projectPath": "/Users/davidmonterrosa/Desktop/CodeStack/StudyBuddies/study-buddys-backend-v2/study-buddys-backend-v2.csproj",
+        "packagesPath": "/Users/davidmonterrosa/.nuget/packages/",
+        "outputPath": "/Users/davidmonterrosa/Desktop/CodeStack/StudyBuddies/study-buddys-backend-v2/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\grijr\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/davidmonterrosa/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -107,7 +107,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
