@@ -113,5 +113,19 @@ namespace study_buddys_backend_v2.Controllers
 
             return BadRequest(new { Success = false, message = "Failed to edit community role" });
         }
+
+        [HttpGet("FilterUserIdFromCommunityAsync/{userId}")]
+
+        public async Task<IActionResult> FilterUserIdFromCommunityAsync(int userId)
+        {
+            var communities = await _communityServices.GetCommunitiesByUserIdAsync(userId);
+
+            if (communities == null || communities.Count == 0)
+            {
+                return NotFound($"No communities found for user with ID {userId}");
+            }
+
+            return Ok(communities);
+        }
     }
 }

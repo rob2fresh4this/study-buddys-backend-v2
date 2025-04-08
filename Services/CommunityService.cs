@@ -186,7 +186,7 @@ namespace study_buddys_backend_v2.Services
 
                 _dataContext.Entry(member).State = EntityState.Modified;
 
-                return await _dataContext.SaveChangesAsync() > 0;
+                return await _dataContext.SaveChangesAsync() != 0;
             }
 
             return false;
@@ -198,6 +198,19 @@ namespace study_buddys_backend_v2.Services
             var validRoles = new HashSet<string> { "student", "owner", "ta", "teacher" };
             return validRoles.Contains(role.ToLower());
         }
+
+        public async Task<List<CommunityModel>> GetCommunitiesByUserIdAsync(int userId)
+        {
+            // Fetch communities with the members included
+            var communities = await _dataContext.Communitys
+                .Include(c => c.CommunityMembers) // Ensure members are included
+                .Where(c => c.CommunityMembers.Any(m => m.UserId == userId)) // Filter communities by userId
+                .ToListAsync();
+
+            return communities;
+        }
+
+
 
     }
 }
