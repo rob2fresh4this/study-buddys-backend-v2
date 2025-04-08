@@ -12,7 +12,7 @@ Here are some of the key API endpoints available in the backend:
 
 This endpoint retrieves a list of all users from the backend.
 
-# API currently down
+# API down time
 
 - dates [4/7/25]/[4/8/25]
 
