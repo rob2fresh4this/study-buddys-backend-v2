@@ -12,6 +12,10 @@ Here are some of the key API endpoints available in the backend:
 
 This endpoint retrieves a list of all users from the backend.
 
+# API currently down
+
+- dates [4/8/25]/[ongoing]
+
 #### Example Request:
 ```http
 GET https://study-buddys-backend.azurewebsites.net/User/getAllUsers
