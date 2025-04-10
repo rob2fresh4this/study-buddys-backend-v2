@@ -204,14 +204,16 @@ namespace study_buddys_backend_v2.Services
 
         public async Task<List<CommunityModel>> GetCommunitiesByUserIdAsync(int userId)
         {
-            // Fetch communities with the members included
+            // Fetch communities where the user is a member and the community is not deleted
             var communities = await _dataContext.Communitys
                 .Include(c => c.CommunityMembers) // Ensure members are included
-                .Where(c => c.CommunityMembers.Any(m => m.UserId == userId)) // Filter communities by userId
+                .Where(c => c.CommunityMembers.Any(m => m.UserId == userId) && !c.CommunityIsDeleted) // Exclude deleted communities
                 .ToListAsync();
 
             return communities;
         }
+
+
 
         // Ensure the chat is added to the correct community and saved
         public async Task<bool> CreateCommunityChatAsync(int communityId, CommunityChatModel chat)
