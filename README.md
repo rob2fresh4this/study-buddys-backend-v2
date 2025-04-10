@@ -90,6 +90,11 @@ The repository for this project has been moved to the new GitHub link:
 
 Please make sure to reference this new link for future development, issues, and contributions.
 
+
+Older Github Link:
+
+[https://github.com/rob2fresh4this/Study-Buddys-Backend](https://github.com/rob2fresh4this/Study-Buddys-Backend)
+
 ---
 
 Happy coding! 🚀
