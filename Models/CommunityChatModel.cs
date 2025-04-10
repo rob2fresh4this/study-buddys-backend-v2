@@ -8,6 +8,8 @@ namespace study_buddys_backend_v2.Models
         public string Message { get; set; } = string.Empty; // The message content
         public DateTime Timestamp { get; set; } = DateTime.UtcNow; // Automatically logs creation time
         public string? MediaUrl { get; set; } // Optional media (image, file, etc.)
+        public bool IsDeleted { get; set; } = false; // True if the message was deleted
+        public bool IsPinned { get; set; } = false; // True if the message is pinned
         public bool IsEdited { get; set; } = false; // True if the message was edited
 
 

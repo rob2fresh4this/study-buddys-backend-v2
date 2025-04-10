@@ -142,6 +142,43 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to create community chat" });
         }
 
+        [HttpPost("EditCommunityChat/{communityId}/{chatId}/{newMessage}")]
+        public async Task<IActionResult> EditCommunityChat(int communityId, int chatId, string newMessage)
+        {
+            if (await _communityServices.EditCommunityChatAsync(communityId, chatId, newMessage))
+            {
+                return Ok(new { Success = true });
+            }
+
+            return BadRequest(new { Success = false, message = "Failed to edit community chat" });
+        }
+
+        [HttpPut("PinCommunityChat/{communityId}/{chatId}/{isPinned}")]
+        public async Task<IActionResult> PinCommunityChat(int communityId, int chatId, bool isPinned)
+        {
+            if (await _communityServices.PinCommunityPostAsync(communityId, chatId, isPinned))
+            {
+                return Ok(new { Success = true });
+            }
+
+            return BadRequest(new { Success = false, message = "Failed to pin community chat" });
+        }
+
+        [HttpDelete("DeleteCommunityPost/{communityId}/{chatId}/{isDeleted}")]
+        public async Task<IActionResult> DeleteCommunityPost(int communityId, int chatId, bool isDeleted)
+        {
+            if (await _communityServices.DeleteCommunityPostAsync(communityId, chatId, isDeleted))
+            {
+                return Ok(new { Success = true });
+            }
+
+            return BadRequest(new { Success = false, message = "Failed to delete community post" });
+        }
+
+
+
+
+
 
     }
 }

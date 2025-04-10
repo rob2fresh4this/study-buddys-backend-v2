@@ -17,13 +17,13 @@ namespace study_buddys_backend_v2.Services
             _dataContext = dataContext;
         }
 
-public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
-{
-    return await _dataContext.Communitys
-        .Include(c => c.CommunityChats) // Include chats
-        .Include(c => c.CommunityMembers) // Include members if needed
-        .ToListAsync();
-}
+        public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
+        {
+            return await _dataContext.Communitys
+                .Include(c => c.CommunityChats) // Include chats
+                .Include(c => c.CommunityMembers) // Include members if needed
+                .ToListAsync();
+        }
 
 
         public async Task<bool> AddCommunityAsync(CommunityModel community)
@@ -214,18 +214,79 @@ public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
         }
 
         // Ensure the chat is added to the correct community and saved
-public async Task<bool> CreateCommunityChatAsync(int communityId, CommunityChatModel chat)
-{
-    var community = await _dataContext.Communitys
-        .Include(c => c.CommunityChats) // Ensure chats are included
-        .FirstOrDefaultAsync(c => c.Id == communityId);
+        public async Task<bool> CreateCommunityChatAsync(int communityId, CommunityChatModel chat)
+        {
+            var community = await _dataContext.Communitys
+                .Include(c => c.CommunityChats) // Ensure chats are included
+                .FirstOrDefaultAsync(c => c.Id == communityId);
 
-    if (community == null) return false;
+            if (community == null) return false;
 
-    community.CommunityChats.Add(chat);
-    await _dataContext.SaveChangesAsync(); // Save changes to the database
-    return true;
-}
+            community.CommunityChats.Add(chat);
+            await _dataContext.SaveChangesAsync(); // Save changes to the database
+            return true;
+        }
+
+        public async Task<bool> EditCommunityChatAsync(int communityId, int chatId, string newMessage)
+        {
+            var community = await _dataContext.Communitys
+                .Include(c => c.CommunityChats) // Ensure chats are included
+                .FirstOrDefaultAsync(c => c.Id == communityId);
+
+            if (community == null) return false;
+
+            var chat = community.CommunityChats.FirstOrDefault(c => c.Id == chatId);
+            if (chat != null)
+            {
+                chat.Message = newMessage;
+                chat.IsEdited = true; // Mark as edited
+                await _dataContext.SaveChangesAsync(); // Save changes to the database
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> DeleteCommunityPostAsync(int communityId, int chatId, bool isDeleted)
+        {
+            var community = await _dataContext.Communitys
+                .Include(c => c.CommunityChats) // Ensure chats are included
+                .FirstOrDefaultAsync(c => c.Id == communityId);
+
+            if (community == null) return false;
+
+            var chat = community.CommunityChats.FirstOrDefault(c => c.Id == chatId);
+            if (chat != null)
+            {
+                chat.IsDeleted = isDeleted;
+                await _dataContext.SaveChangesAsync(); // Save changes to the database
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> PinCommunityPostAsync(int communityId, int chatId, bool isPinned)
+        {
+            var community = await _dataContext.Communitys
+                .Include(c => c.CommunityChats) // Ensure chats are included
+                .FirstOrDefaultAsync(c => c.Id == communityId);
+
+            if (community == null) return false;
+
+            var chat = community.CommunityChats.FirstOrDefault(c => c.Id == chatId);
+            if (chat != null)
+            {
+                chat.IsPinned = isPinned;
+                await _dataContext.SaveChangesAsync(); // Save changes to the database
+                return true;
+            }
+            return false;
+        }
+
+
+
+
+
+
 
 
 

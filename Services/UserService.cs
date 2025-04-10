@@ -203,6 +203,7 @@ namespace study_buddys_backend_v2.Services
                 JoinedCommunitys = user.JoinedCommunitys ?? new List<int>(),
                 CommunityRequests = user.CommunityRequests ?? new List<int>()
             };
+
         }
     }
 }
