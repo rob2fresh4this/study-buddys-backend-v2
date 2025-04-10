@@ -92,5 +92,7 @@ namespace study_buddys_backend_v2.Controllers
             }
             return Ok(new { Success = true, Message = "Community removed from user successfully" });
         }
+
+        
     }
 }

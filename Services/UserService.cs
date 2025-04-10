@@ -32,6 +32,8 @@ namespace study_buddys_backend_v2.Services
                 {
                     Id = user.Id,
                     Username = user.Username,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
                     OwnedCommunitys = user.OwnedCommunitys ?? new List<int>(),
                     JoinedCommunitys = user.JoinedCommunitys ?? new List<int>(),
                     CommunityRequests = user.CommunityRequests ?? new List<int>()
@@ -41,9 +43,15 @@ namespace study_buddys_backend_v2.Services
         public async Task<bool> RegisterUser(UserDTO user)
         {
             if (await DoseUserExist(user.Username)) return false;
-            UserModels addUser = new();
+
+            UserModels addUser = new()
+            {
+                Username = user.Username,
+                FirstName = user.FirstName, // Set FirstName
+                LastName = user.LastName,   // Set LastName
+            };
+
             PasswordDTO encryptedPassword = HashPassword(user.Password);
-            addUser.Username = user.Username;
             addUser.Hash = encryptedPassword.Hash;
             addUser.Salt = encryptedPassword.Salt;
 
@@ -199,6 +207,8 @@ namespace study_buddys_backend_v2.Services
             {
                 Id = user.Id,
                 Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 OwnedCommunitys = user.OwnedCommunitys ?? new List<int>(),
                 JoinedCommunitys = user.JoinedCommunitys ?? new List<int>(),
                 CommunityRequests = user.CommunityRequests ?? new List<int>()
