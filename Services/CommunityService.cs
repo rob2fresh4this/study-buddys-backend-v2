@@ -17,10 +17,13 @@ namespace study_buddys_backend_v2.Services
             _dataContext = dataContext;
         }
 
-        public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
-        {
-            return await _dataContext.Communitys.Include(c => c.CommunityMembers).ToListAsync();
-        }
+public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
+{
+    return await _dataContext.Communitys
+        .Include(c => c.CommunityChats) // Include chats
+        .Include(c => c.CommunityMembers) // Include members if needed
+        .ToListAsync();
+}
 
 
         public async Task<bool> AddCommunityAsync(CommunityModel community)
@@ -209,6 +212,22 @@ namespace study_buddys_backend_v2.Services
 
             return communities;
         }
+
+        // Ensure the chat is added to the correct community and saved
+public async Task<bool> CreateCommunityChatAsync(int communityId, CommunityChatModel chat)
+{
+    var community = await _dataContext.Communitys
+        .Include(c => c.CommunityChats) // Ensure chats are included
+        .FirstOrDefaultAsync(c => c.Id == communityId);
+
+    if (community == null) return false;
+
+    community.CommunityChats.Add(chat);
+    await _dataContext.SaveChangesAsync(); // Save changes to the database
+    return true;
+}
+
+
 
 
 

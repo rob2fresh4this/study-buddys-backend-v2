@@ -22,6 +22,44 @@ namespace study_buddys_backend_v2.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityChatModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CommunityModelId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MediaUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserIdSender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserSenderName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommunityModelId");
+
+                    b.ToTable("CommunityChatModel");
+                });
+
             modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityMemberModel", b =>
                 {
                     b.Property<int>("Id")
@@ -124,6 +162,13 @@ namespace study_buddys_backend_v2.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityChatModel", b =>
+                {
+                    b.HasOne("study_buddys_backend_v2.Models.CommunityModel", null)
+                        .WithMany("CommunityChats")
+                        .HasForeignKey("CommunityModelId");
+                });
+
             modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityMemberModel", b =>
                 {
                     b.HasOne("study_buddys_backend_v2.Models.CommunityModel", null)
@@ -133,6 +178,8 @@ namespace study_buddys_backend_v2.Migrations
 
             modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityModel", b =>
                 {
+                    b.Navigation("CommunityChats");
+
                     b.Navigation("CommunityMembers");
                 });
 #pragma warning restore 612, 618

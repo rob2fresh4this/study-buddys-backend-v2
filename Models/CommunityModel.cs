@@ -11,6 +11,7 @@ namespace study_buddys_backend_v2.Models
         public string? CommunityName { get; set; }
         public string? CommunitySubject { get; set; }
         public int CommunityMemberCount { get; set; }
+        public List<CommunityChatModel> CommunityChats { get; set; } = new List<CommunityChatModel>();
         public List<CommunityMemberModel>? CommunityMembers { get; set; } = new List<CommunityMemberModel>(); // Change here
         public List<int>? CommunityRequests { get; set; } = new List<int>();
         public string? CommunityDifficulty { get; set; }

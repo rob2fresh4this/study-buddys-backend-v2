@@ -127,5 +127,21 @@ namespace study_buddys_backend_v2.Controllers
 
             return Ok(communities);
         }
+
+        [HttpPost("CreateCommunityChats")]
+        public async Task<IActionResult> CreateCommunityChats(int communityId, [FromBody] CommunityChatModel chat)
+        {
+            if (await _communityServices.CreateCommunityChatAsync(communityId, chat))
+            {
+                // Fetch the community again to check if the chat exists
+                var community = await _communityServices.GetCommunityByIdAsync(communityId);
+                Console.WriteLine($"Community has {community?.CommunityChats.Count} chats.");
+                return Ok(new { Success = true });
+            }
+
+            return BadRequest(new { Success = false, message = "Failed to create community chat" });
+        }
+
+
     }
 }
