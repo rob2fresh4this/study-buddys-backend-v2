@@ -175,6 +175,17 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to delete community post" });
         }
 
+        [HttpDelete("DeleteCommunity/{communityId}/{isDeleted}")]
+        public async Task<IActionResult> DeleteCommunity(int communityId, bool isDeleted)
+        {
+            if (await _communityServices.CommunityIsDeletedAsync(communityId, isDeleted))
+            {
+                return Ok(new { Success = true });
+            }
+
+            return BadRequest(new { Success = false, message = "Failed to delete community" });
+        }
+
 
 
 
