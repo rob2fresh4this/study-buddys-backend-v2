@@ -26,6 +26,17 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Communities = communities });
         }
 
+        [HttpGet("getCommunityById/{communityId}")]
+        public async Task<IActionResult> GetCommunityById(int communityId)
+        {
+            var community = await _communityServices.GetCommunityByIdAsync(communityId);
+            if (community == null)
+            {
+                return NotFound(new { Success = false, Message = "Community not found" });
+            }
+            return Ok(new { Success = true, Community = community });
+        }
+
         [HttpPost("addCommunity")]
         public async Task<IActionResult> AddCommunity([FromBody] CommunityModel community)
         {
