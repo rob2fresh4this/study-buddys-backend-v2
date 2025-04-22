@@ -8,34 +8,41 @@ using study_buddys_backend_v2.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// ✅ Your services
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CommunityService>();
 
+// ✅ Register your SignalR and UserConnectionManager
+builder.Services.AddSignalR(); // Add this
+builder.Services.AddSingleton<UserConnectionManager>(); // And this
+
+// ✅ DB Context
 var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
 
+// ✅ CORS Policy
 builder.Services.AddCors(Options =>
-{// Allow All
+{
     Options.AddPolicy("AllowAll",
-    policy =>
-    {
-        policy.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-    });
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
 });
 
+// ✅ JWT Authentication
 var secretKey = builder.Configuration["Jwt:Key"];
 var signingCredentials = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
-string serverUrl = "https://study-buddys-backend.azurewebsites.net/"; // Server URL for production
+string serverUrl = "https://study-buddys-backend.azurewebsites.net/";
 string serverUrl2 = "https://studybuddies-g9bmedddeah6aqe7.westus-01.azurewebsites.net/";
-string localHostUrl = "https://localhost:5233/"; // Localhost URL for testing
+string localHostUrl = "https://localhost:5233/";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -50,20 +57,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
 
-        ValidIssuers = new List<string>
-        {
-            serverUrl,
-            localHostUrl,
-            serverUrl2
-        },
-
-        // Allow multiple audiences
-        ValidAudiences = new List<string>
-        {
-            serverUrl,
-            localHostUrl,
-            serverUrl2
-        },
+        ValidIssuers = new List<string> { serverUrl, localHostUrl, serverUrl2 },
+        ValidAudiences = new List<string> { serverUrl, localHostUrl, serverUrl2 },
         IssuerSigningKey = signingCredentials
     };
 });
@@ -82,9 +77,11 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
+
+// ✅ You’ll plug in this line after we make the DirectMessageHub in next step
+// app.MapHub<DirectMessageHub>("/hubs/direct");
 
 app.Run();
