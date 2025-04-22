@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace study_buddys_backend_v2.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class DirectMessagesController : ControllerBase
     {
