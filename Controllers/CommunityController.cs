@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using study_buddys_backend_v2.Models;
 using study_buddys_backend_v2.Services;
 
@@ -37,6 +38,7 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Community = community });
         }
 
+        [Authorize]
         [HttpPost("addCommunity")]
         public async Task<IActionResult> AddCommunity([FromBody] CommunityModel community)
         {
@@ -44,7 +46,8 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false });
         }
 
-        [HttpPut("updateCommunity")]
+        [Authorize]
+        [HttpPut("updateCommunity")]        
         public async Task<IActionResult> UpdateCommunity([FromBody] CommunityModel updatedCommunity)
         {
             var existingCommunity = await _communityServices.GetCommunityByIdAsync(updatedCommunity.Id);
@@ -65,7 +68,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, Message = "Failed to update community" });
         }
 
-
+        [Authorize]
         [HttpPost("addMemberToCommunity/{communityId}/{userId}")]
         public async Task<IActionResult> AddMemberToCommunity(int communityId, int userId)
         {
@@ -73,6 +76,8 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to add member to community" });
         }
 
+
+        [Authorize]
         [HttpDelete("removeMemberFromCommunity/{communityId}/{userId}")]
         public async Task<IActionResult> RemoveMemberFromCommunity(int communityId, int userId)
         {
@@ -80,6 +85,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to remove member from community" });
         }
 
+        [Authorize]
         [HttpPost("addRequestToCommunity/{communityId}/{userId}")]
         public async Task<IActionResult> AddRequestToCommunity(int communityId, int userId)
         {
@@ -87,6 +93,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to add request to community" });
         }
 
+        [Authorize]
         [HttpDelete("removeRequestFromCommunity/{communityId}/{userId}")]
         public async Task<IActionResult> RemoveRequestFromCommunity(int communityId, int userId)
         {
@@ -94,6 +101,8 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to remove request from community" });
         }
 
+
+        [Authorize]
         [HttpPut("approveRequest/{communityId}/{userId}/{approveORnot}")]
         public async Task<IActionResult> ApproveRequest(int communityId, int userId, bool approveORnot)
         {
@@ -107,15 +116,16 @@ namespace study_buddys_backend_v2.Controllers
 
 
         // only for testing purposes
-        [HttpDelete("clearCommunityMembers/{communityId}")]
-        public async Task<IActionResult> ClearCommunityMembers(int communityId)
-        {
-            if (await _communityServices.ClearCommunityMembersAsync(communityId))
-                return Ok(new { Success = true });
+        // [HttpDelete("clearCommunityMembers/{communityId}")]
+        // public async Task<IActionResult> ClearCommunityMembers(int communityId)
+        // {
+        //     if (await _communityServices.ClearCommunityMembersAsync(communityId))
+        //         return Ok(new { Success = true });
 
-            return BadRequest(new { Success = false, message = "Failed to clear community members" });
-        }
+        //     return BadRequest(new { Success = false, message = "Failed to clear community members" });
+        // }
 
+        [Authorize]
         [HttpPut("EditCommunityRole/{communityId}/{userId}/{role}")]
         public async Task<IActionResult> EditCommunityRole(int communityId, int userId, string role)
         {
@@ -125,8 +135,8 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to edit community role" });
         }
 
+        [Authorize]
         [HttpGet("FilterUserIdFromCommunityAsync/{userId}")]
-
         public async Task<IActionResult> FilterUserIdFromCommunityAsync(int userId)
         {
             var communities = await _communityServices.GetCommunitiesByUserIdAsync(userId);
@@ -139,6 +149,7 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(communities);
         }
 
+        [Authorize]
         [HttpPost("CreateCommunityChats")]
         public async Task<IActionResult> CreateCommunityChats(int communityId, [FromBody] CommunityChatModel chat)
         {
@@ -153,6 +164,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to create community chat" });
         }
 
+        [Authorize]
         [HttpPost("EditCommunityChat/{communityId}/{chatId}/{newMessage}")]
         public async Task<IActionResult> EditCommunityChat(int communityId, int chatId, string newMessage)
         {
@@ -164,6 +176,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to edit community chat" });
         }
 
+        [Authorize]
         [HttpPut("PinCommunityChat/{communityId}/{chatId}/{isPinned}")]
         public async Task<IActionResult> PinCommunityChat(int communityId, int chatId, bool isPinned)
         {
@@ -175,6 +188,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to pin community chat" });
         }
 
+        [Authorize]
         [HttpDelete("DeleteCommunityPost/{communityId}/{chatId}/{isDeleted}")]
         public async Task<IActionResult> DeleteCommunityPost(int communityId, int chatId, bool isDeleted)
         {
@@ -186,6 +200,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to delete community post" });
         }
 
+        [Authorize]
         [HttpDelete("DeleteCommunity/{communityId}/{isDeleted}")]
         public async Task<IActionResult> DeleteCommunity(int communityId, bool isDeleted)
         {
@@ -196,11 +211,5 @@ namespace study_buddys_backend_v2.Controllers
 
             return BadRequest(new { Success = false, message = "Failed to delete community" });
         }
-
-
-
-
-
-
     }
 }

@@ -97,6 +97,7 @@ namespace study_buddys_backend_v2.Services
         public async Task<CommunityModel?> GetCommunityByIdAsync(int communityId)
         {
             return await _dataContext.Communitys
+                .Include(c => c.CommunityChats) // Ensure chats are included
                 .Include(c => c.CommunityMembers) // Ensure members are included
                 .FirstOrDefaultAsync(c => c.Id == communityId);
         }

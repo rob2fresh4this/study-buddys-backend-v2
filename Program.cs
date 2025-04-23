@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using study_buddys_backend_v2.Context;
 using study_buddys_backend_v2.Services;
 
@@ -10,21 +11,45 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Study Buddys API", Version = "v1" });
 
-// ✅ Your services
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your token.\r\n\r\nExample: Bearer abc.def.ghi"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CommunityService>();
 
-// ✅ Register your SignalR and UserConnectionManager
 builder.Services.AddSignalR(); // Add this
 builder.Services.AddSingleton<UserConnectionManager>(); // And this
 
-// ✅ DB Context
 var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
 
-// ✅ CORS Policy
 builder.Services.AddCors(Options =>
 {
     Options.AddPolicy("AllowAll",
@@ -36,7 +61,6 @@ builder.Services.AddCors(Options =>
         });
 });
 
-// ✅ JWT Authentication
 var secretKey = builder.Configuration["Jwt:Key"];
 var signingCredentials = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
@@ -80,8 +104,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// ✅ You’ll plug in this line after we make the DirectMessageHub in next step
-// app.MapHub<DirectMessageHub>("/hubs/direct");
 
 app.Run();
