@@ -20,7 +20,7 @@ namespace study_buddys_backend_v2.Services
         public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
         {
             return await _dataContext.Communitys
-            .Include(c => c.CommunityChats) // Include chats
+            .Include(c => c.CommunityChats.Where(c => !c.IsDeleted)) // Include chats
             .Include(c => c.CommunityMembers) // Include members if needed
             .Where(c => !c.CommunityIsDeleted) // Exclude deleted communities
             .ToListAsync();
@@ -97,7 +97,7 @@ namespace study_buddys_backend_v2.Services
         public async Task<CommunityModel?> GetCommunityByIdAsync(int communityId)
         {
             return await _dataContext.Communitys
-                .Include(c => c.CommunityChats) // Ensure chats are included
+                .Include(c => c.CommunityChats.Where(chats => !chats.IsDeleted)) // Ensure chats are included
                 .Include(c => c.CommunityMembers) // Ensure members are included
                 .FirstOrDefaultAsync(c => c.Id == communityId);
         }
