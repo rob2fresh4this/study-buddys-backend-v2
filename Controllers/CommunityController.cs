@@ -30,7 +30,7 @@ namespace study_buddys_backend_v2.Controllers
         [HttpGet("getCommunityById/{communityId}")]
         public async Task<IActionResult> GetCommunityById(int communityId)
         {
-            var community = await _communityServices.GetCommunityByIdAsync(communityId);
+            var community = await _communityServices.GetCommunityByIdAsyncNEW(communityId);
             if (community == null)
             {
                 return NotFound(new { Success = false, Message = "Community not found" });

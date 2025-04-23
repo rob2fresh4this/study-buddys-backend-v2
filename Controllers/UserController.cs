@@ -40,6 +40,16 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, User = userInfo });
         }
 
+        [HttpGet("getUserById/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var user = await _userServices.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound(new { Success = false, Message = "User not found" });
+
+            return Ok(new { Success = true, User = user });
+        }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserDTO user)

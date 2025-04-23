@@ -17,14 +17,84 @@ namespace study_buddys_backend_v2.Services
             _dataContext = dataContext;
         }
 
-        public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
+        // public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
+        // {
+        //     return await _dataContext.Communitys
+        //     .Include(c => c.CommunityChats.Where(c => !c.IsDeleted)) // Include chats
+        //     .Include(c => c.CommunityMembers) // Include members if needed
+        //     .Where(c => !c.CommunityIsDeleted) // Exclude deleted communities
+        //     .ToListAsync();
+        // }
+
+        public async Task<List<object>> GetAllCommunitiesAsync()
         {
-            return await _dataContext.Communitys
-            .Include(c => c.CommunityChats.Where(c => !c.IsDeleted)) // Include chats
-            .Include(c => c.CommunityMembers) // Include members if needed
-            .Where(c => !c.CommunityIsDeleted) // Exclude deleted communities
-            .ToListAsync();
+            var communities = await _dataContext.Communitys
+                .Include(c => c.CommunityChats.Where(chat => !chat.IsDeleted))
+                .Include(c => c.CommunityMembers)
+                .Where(c => !c.CommunityIsDeleted)
+                .ToListAsync();
+
+            var users = await _dataContext.Users.ToListAsync(); // Grab all users to prevent repeated queries
+
+            var result = new List<object>();
+
+            foreach (var community in communities)
+            {
+                var ownerUser = users.FirstOrDefault(u => u.Id == community.CommunityOwnerID);
+                string ownerFullName = ownerUser != null ? $"{ownerUser.FirstName} {ownerUser.LastName}" : "";
+
+                var enrichedMembers = community.CommunityMembers.Select(member =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == member.UserId);
+                    return new
+                    {
+                        id = member.Id,
+                        userId = member.UserId,
+                        role = member.Role,
+                        firstName = user?.FirstName ?? "no name",
+                        lastName = user?.LastName ?? "no name   "
+                    };
+                }).ToList();
+
+                var enrichedChats = community.CommunityChats.Select(chat =>
+                {
+                    var sender = users.FirstOrDefault(u => u.Id == chat.UserIdSender);
+                    return new
+                    {
+                        id = chat.Id,
+                        userIdSender = chat.UserIdSender,
+                        userSenderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "no name",
+                        message = chat.Message,
+                        timestamp = chat.Timestamp,
+                        mediaUrl = chat.MediaUrl,
+                        isPinned = chat.IsPinned,
+                        isEdited = chat.IsEdited
+                    };
+                }).ToList();
+
+                result.Add(new
+                {
+                    id = community.Id,
+                    communityOwnerID = community.CommunityOwnerID,
+                    isCommunityOwner = true, // You can set this based on the user making the request if needed
+                    communityIsPublic = community.CommunityIsPublic,
+                    communityIsDeleted = community.CommunityIsDeleted,
+                    communityOwnerName = ownerFullName,
+                    communityName = community.CommunityName,
+                    communitySubject = community.CommunitySubject,
+                    communityMemberCount = community.CommunityMembers.Count,
+                    communityChats = enrichedChats,
+                    communityMembers = enrichedMembers,
+                    communityRequests = community.CommunityRequests,
+                    communityDifficulty = community.CommunityDifficulty,
+                    communityDescription = community.CommunityDescription
+                });
+            }
+
+            return result;
         }
+
+
 
 
         public async Task<bool> AddCommunityAsync(CommunityModel community)
@@ -101,6 +171,70 @@ namespace study_buddys_backend_v2.Services
                 .Include(c => c.CommunityMembers) // Ensure members are included
                 .FirstOrDefaultAsync(c => c.Id == communityId);
         }
+
+        public async Task<object?> GetCommunityByIdAsyncNEW(int communityId)
+{
+    var community = await _dataContext.Communitys
+        .Include(c => c.CommunityChats.Where(chat => !chat.IsDeleted))
+        .Include(c => c.CommunityMembers)
+        .FirstOrDefaultAsync(c => c.Id == communityId);
+
+    if (community == null) return null;
+
+    var users = await _dataContext.Users.ToListAsync();
+
+    var ownerUser = users.FirstOrDefault(u => u.Id == community.CommunityOwnerID);
+    string ownerFullName = ownerUser != null ? $"{ownerUser.FirstName} {ownerUser.LastName}" : "";
+
+    var enrichedMembers = community.CommunityMembers.Select(member =>
+    {
+        var user = users.FirstOrDefault(u => u.Id == member.UserId);
+        return new
+        {
+            id = member.Id,
+            userId = member.UserId,
+            role = member.Role,
+            firstName = user?.FirstName ?? "",
+            lastName = user?.LastName ?? ""
+        };
+    }).ToList();
+
+    var enrichedChats = community.CommunityChats.Select(chat =>
+    {
+        var sender = users.FirstOrDefault(u => u.Id == chat.UserIdSender);
+        return new
+        {
+            id = chat.Id,
+            userIdSender = chat.UserIdSender,
+            userSenderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "",
+            message = chat.Message,
+            timestamp = chat.Timestamp,
+            mediaUrl = chat.MediaUrl,
+            isDeleted = chat.IsDeleted,
+            isPinned = chat.IsPinned,
+            isEdited = chat.IsEdited
+        };
+    }).ToList();
+
+    return new
+    {
+        id = community.Id,
+        communityOwnerID = community.CommunityOwnerID,
+        isCommunityOwner = true, // Optional: depends on who made the request
+        communityIsPublic = community.CommunityIsPublic,
+        communityIsDeleted = community.CommunityIsDeleted,
+        communityOwnerName = ownerFullName,
+        communityName = community.CommunityName,
+        communitySubject = community.CommunitySubject,
+        communityMemberCount = community.CommunityMembers.Count,
+        communityChats = enrichedChats,
+        communityMembers = enrichedMembers,
+        communityRequests = community.CommunityRequests,
+        communityDifficulty = community.CommunityDifficulty,
+        communityDescription = community.CommunityDescription
+    };
+}
+
 
 
 
