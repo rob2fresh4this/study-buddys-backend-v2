@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("study-buddys-backend-v2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7aec8a871bc9fbf10696699b814025f006e37eb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+873020eaf52e41d80f6ab6bedab989f9b9eddfe5")]
 [assembly: System.Reflection.AssemblyProductAttribute("study-buddys-backend-v2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("study-buddys-backend-v2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
