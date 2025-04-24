@@ -150,7 +150,7 @@ namespace study_buddys_backend_v2.Controllers
         }
 
         [Authorize]
-        [HttpPost("CreateCommunityChats")]
+        [HttpPost("CreateCommunityChats/{communityId}")]
         public async Task<IActionResult> CreateCommunityChats(int communityId, [FromBody] CommunityChatModel chat)
         {
             if (await _communityServices.CreateCommunityChatAsync(communityId, chat))

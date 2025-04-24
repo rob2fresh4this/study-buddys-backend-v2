@@ -21,7 +21,7 @@ namespace study_buddys_backend_v2.Controllers
         }
 
         // GET: api/DirectMessages/{id}
-        [HttpGet("{id}")]
+        [HttpGet("getAllUsersChats/{id}")]
         public async Task<ActionResult<DirectMessageModel>> getAllUsersChats(int id)
         {
             if (id <= 0)
@@ -47,7 +47,7 @@ namespace study_buddys_backend_v2.Controllers
 
 
         // POST: api/DirectMessages
-        [HttpPost]
+        [HttpPost("PostDirectMessage/{message}")]
         public async Task<ActionResult<DirectMessageModel>> PostDirectMessage(DirectMessageModel message)
         {
             if (message == null)
