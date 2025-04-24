@@ -47,7 +47,7 @@ namespace study_buddys_backend_v2.Controllers
 
 
         // POST: api/DirectMessages
-        [HttpPost("PostDirectMessage/{message}")]
+        [HttpPost("PostDirectMessage")]
         public async Task<ActionResult<DirectMessageModel>> PostDirectMessage(DirectMessageModel message)
         {
             if (message == null)
