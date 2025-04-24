@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using study_buddys_backend_v2.Context;
+using study_buddys_backend_v2.Hubs;
 using study_buddys_backend_v2.Models;
 
 namespace study_buddys_backend_v2.Services
@@ -11,10 +13,12 @@ namespace study_buddys_backend_v2.Services
     public class CommunityService
     {
         private readonly DataContext _dataContext;
+        private readonly IHubContext<CommunityHub> _hubContext;
 
-        public CommunityService(DataContext dataContext)
+        public CommunityService(DataContext dataContext, IHubContext<CommunityHub> hubContext)
         {
             _dataContext = dataContext;
+            _hubContext = hubContext;
         }
 
         // public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
@@ -253,6 +257,7 @@ namespace study_buddys_backend_v2.Services
             {
                 community.CommunityRequests.Add(userId);
                 _dataContext.Communitys.Update(community); // Explicit update
+                await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("NewJoinRequest", userId);
                 return await _dataContext.SaveChangesAsync() > 0;
             }
             return false;
@@ -280,14 +285,22 @@ namespace study_buddys_backend_v2.Services
             if (approve)
             {
                 // Add user to members
-                await AddMemberToCommunityAsync(communityId, userId);
-                await RemoveRequestFromCommunityAsync(communityId, userId);
+                bool memberAdded = await AddMemberToCommunityAsync(communityId, userId);
+                if (!memberAdded) return false;
+
+                // Remove user from requests
+                bool requestRemoved = await RemoveRequestFromCommunityAsync(communityId, userId);
+                if (!requestRemoved) return false;
             }
             else
             {
                 // Remove user from requests
-                await RemoveRequestFromCommunityAsync(communityId, userId);
+                bool requestRemoved = await RemoveRequestFromCommunityAsync(communityId, userId);
+                if (!requestRemoved) return false;
             }
+
+            // Notify the user about the approval status
+            await _hubContext.Clients.User(userId.ToString()).SendAsync("RequestApprovalStatus", approve);
 
             return true;
         }
@@ -324,6 +337,7 @@ namespace study_buddys_backend_v2.Services
                 member.Role = newRole;
 
                 _dataContext.Entry(member).State = EntityState.Modified;
+                await _hubContext.Clients.User(userId.ToString()).SendAsync("RoleUpdated", newRole);
 
                 return await _dataContext.SaveChangesAsync() != 0;
             }
@@ -362,6 +376,8 @@ namespace study_buddys_backend_v2.Services
 
             community.CommunityChats.Add(chat);
             await _dataContext.SaveChangesAsync(); // Save changes to the database
+            await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("ReceiveNewChat", chat);
+
             return true;
         }
 
@@ -378,11 +394,16 @@ namespace study_buddys_backend_v2.Services
             {
                 chat.Message = newMessage;
                 chat.IsEdited = true; // Mark as edited
+
+                // Pass the updated chat object to SignalR
+                await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("ReceiveUpdatedChat", chat);
+
                 await _dataContext.SaveChangesAsync(); // Save changes to the database
                 return true;
             }
             return false;
         }
+
 
         public async Task<bool> DeleteCommunityPostAsync(int communityId, int chatId, bool isDeleted)
         {
@@ -397,6 +418,7 @@ namespace study_buddys_backend_v2.Services
             {
                 chat.IsDeleted = isDeleted;
                 await _dataContext.SaveChangesAsync(); // Save changes to the database
+                await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("ChatDeletedStatus", chatId, isDeleted);
                 return true;
             }
             return false;
@@ -415,11 +437,13 @@ namespace study_buddys_backend_v2.Services
             {
                 chat.IsPinned = isPinned;
                 await _dataContext.SaveChangesAsync(); // Save changes to the database
+                await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("ChatPinnedStatus", chatId, isPinned);
                 return true;
             }
             return false;
         }
 
+        // This method is used to mark a community as deleted without actually removing it from the database
         public async Task<bool> CommunityIsDeletedAsync(int communityId, bool isDeleted)
         {
             var community = await _dataContext.Communitys.FindAsync(communityId);
@@ -427,18 +451,9 @@ namespace study_buddys_backend_v2.Services
 
             community.CommunityIsDeleted = isDeleted;
             _dataContext.Communitys.Update(community); // Explicit update
+            await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("CommunityDeletedStatus", communityId, isDeleted);
             return await _dataContext.SaveChangesAsync() > 0;
         }
-
-
-
-
-
-
-
-
-
-
 
     }
 }
