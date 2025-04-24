@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using study_buddys_backend_v2.Context;
@@ -104,6 +100,7 @@ namespace study_buddys_backend_v2.Services
         public async Task<bool> AddCommunityAsync(CommunityModel community)
         {
             await _dataContext.Communitys.AddAsync(community);
+            await _hubContext.Clients.Group($"Community-{community.Id}").SendAsync("NewCommunityCreated", community);
             return await _dataContext.SaveChangesAsync() != 0;
         }
 
@@ -118,7 +115,7 @@ namespace study_buddys_backend_v2.Services
 
             // Update only the allowed fields
             _dataContext.Entry(existingCommunity).CurrentValues.SetValues(community);
-
+            await _hubContext.Clients.Group($"Community-{community.Id}").SendAsync("CommunityUpdated", community);
             return await _dataContext.SaveChangesAsync() != 0;
         }
 
@@ -139,7 +136,7 @@ namespace study_buddys_backend_v2.Services
                     UserId = userId,
                     Role = role
                 });
-
+                await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("NewMemberAdded", userId);
                 return await _dataContext.SaveChangesAsync() != 0;
             }
             return false;
@@ -159,6 +156,7 @@ namespace study_buddys_backend_v2.Services
                 {
                     community.CommunityMembers.Remove(member);
                     int result = await _dataContext.SaveChangesAsync();
+                    await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("MemberRemoved", userId);
                     return result != 0;
                 }
             }
@@ -272,6 +270,7 @@ namespace study_buddys_backend_v2.Services
             {
                 community.CommunityRequests.Remove(userId);
                 _dataContext.Communitys.Update(community); // Explicit update
+                await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("RequestRemoved", userId);
                 return await _dataContext.SaveChangesAsync() > 0;
             }
             return false;
