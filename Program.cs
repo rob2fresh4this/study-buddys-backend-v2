@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using study_buddys_backend_v2.Context;
+using study_buddys_backend_v2.Hubs;
 using study_buddys_backend_v2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,6 +104,8 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<CommunityHub>("/communityHub"); // Add this line to map the hub
+app.MapHub<DirectMessageHub>("/directMessageHub"); // Add this line to map the hub
 app.MapControllers();
 
 app.Run();
