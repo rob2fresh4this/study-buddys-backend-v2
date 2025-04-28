@@ -41,7 +41,7 @@ namespace study_buddys_backend_v2.Services
             foreach (var community in communities)
             {
                 var ownerUser = users.FirstOrDefault(u => u.Id == community.CommunityOwnerID);
-                string ownerFullName = ownerUser != null ? $"{ownerUser.FirstName} {ownerUser.LastName}" : "";
+                string ownerFullName = ownerUser != null ? $"{ownerUser.FirstName} {ownerUser.LastName}" : "no name was found";
 
                 var enrichedMembers = community.CommunityMembers.Select(member =>
                 {
@@ -76,7 +76,6 @@ namespace study_buddys_backend_v2.Services
                 {
                     id = community.Id,
                     communityOwnerID = community.CommunityOwnerID,
-                    isCommunityOwner = true, // You can set this based on the user making the request if needed
                     communityIsPublic = community.CommunityIsPublic,
                     communityIsDeleted = community.CommunityIsDeleted,
                     communityOwnerName = ownerFullName,
@@ -222,7 +221,6 @@ namespace study_buddys_backend_v2.Services
             {
                 id = community.Id,
                 communityOwnerID = community.CommunityOwnerID,
-                isCommunityOwner = true, // Optional: depends on who made the request
                 communityIsPublic = community.CommunityIsPublic,
                 communityIsDeleted = community.CommunityIsDeleted,
                 communityOwnerName = ownerFullName,
