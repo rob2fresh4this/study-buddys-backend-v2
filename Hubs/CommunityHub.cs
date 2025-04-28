@@ -14,5 +14,4 @@ namespace study_buddys_backend_v2.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Community-{communityId}");
         }
     }
-
 }

@@ -151,6 +151,18 @@ namespace study_buddys_backend_v2.Migrations
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
@@ -160,6 +172,9 @@ namespace study_buddys_backend_v2.Migrations
 
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("RecieverRead")
+                        .HasColumnType("bit");
 
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
