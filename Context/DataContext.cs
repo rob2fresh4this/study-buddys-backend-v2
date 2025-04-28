@@ -9,5 +9,7 @@ namespace study_buddys_backend_v2.Context
 
         public DbSet<UserModels> Users { get; set; }
         public DbSet<CommunityModel> Communitys { get; set; }
+        public DbSet<DirectMessageModel> DirectMessages { get; set; }
+
     }
 }
