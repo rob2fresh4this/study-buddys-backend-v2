@@ -2,40 +2,72 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using study_buddys_backend_v2.Context;
+using study_buddys_backend_v2.Hubs;
 using study_buddys_backend_v2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Study Buddys API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your token.\r\n\r\nExample: Bearer abc.def.ghi"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CommunityService>();
+
+builder.Services.AddSignalR(); // Add this
+builder.Services.AddSingleton<UserConnectionManager>(); // And this
 
 var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddCors(Options =>
-{// Allow All
+{
     Options.AddPolicy("AllowAll",
-    policy =>
-    {
-        policy.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-    });
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
 });
 
 var secretKey = builder.Configuration["Jwt:Key"];
 var signingCredentials = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
-string serverUrl = "https://study-buddys-backend.azurewebsites.net/"; // Server URL for production
+string serverUrl = "https://study-buddys-backend.azurewebsites.net/";
 string serverUrl2 = "https://studybuddies-g9bmedddeah6aqe7.westus-01.azurewebsites.net/";
-string localHostUrl = "https://localhost:5233/"; // Localhost URL for testing
+string localHostUrl = "https://localhost:5233/";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -50,20 +82,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
 
-        ValidIssuers = new List<string>
-        {
-            serverUrl,
-            localHostUrl,
-            serverUrl2
-        },
-
-        // Allow multiple audiences
-        ValidAudiences = new List<string>
-        {
-            serverUrl,
-            localHostUrl,
-            serverUrl2
-        },
+        ValidIssuers = new List<string> { serverUrl, localHostUrl, serverUrl2 },
+        ValidAudiences = new List<string> { serverUrl, localHostUrl, serverUrl2 },
         IssuerSigningKey = signingCredentials
     };
 });
@@ -82,9 +102,10 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
+app.MapHub<CommunityHub>("/communityHub"); // Add this line to map the hub
+app.MapHub<DirectMessageHub>("/directMessageHub"); // Add this line to map the hub
 app.MapControllers();
 
 app.Run();
