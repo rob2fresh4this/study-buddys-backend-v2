@@ -27,17 +27,37 @@ namespace study_buddys_backend_v2.Services
 
         public async Task<List<UserInfoDTO>> GetAllUsersAsync()
         {
-            return await _dataContext.Users
-                .Select(user => new UserInfoDTO
+            var communities = await _dataContext.Communitys.ToListAsync();
+
+            var communities1 = await _dataContext.Communitys
+        .Include(c => c.CommunityMembers) // Ensure CommunityMembers are included
+        .ToListAsync();
+
+            var users = await _dataContext.Users.ToListAsync();
+
+            var results = new List<UserInfoDTO>();
+            foreach (var user in users)
+            {
+                var ownedCommunitys = communities.Where(c => c.CommunityOwnerID == user.Id).Select(c => c.Id).ToList();
+                var joinedCommunitys = communities1
+                    .Where(c => c.CommunityMembers.Any(m => m.UserId == user.Id)) // Filter by membership
+                    .Select(c => c.Id)
+                    .ToList();
+                var communityRequests = communities.Where(c => c.CommunityRequests.Any(r => r == user.Id)).Select(c => c.Id).ToList();
+
+                results.Add(new UserInfoDTO
                 {
                     Id = user.Id,
                     Username = user.Username,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    OwnedCommunitys = user.OwnedCommunitys ?? new List<int>(),
-                    JoinedCommunitys = user.JoinedCommunitys ?? new List<int>(),
-                    CommunityRequests = user.CommunityRequests ?? new List<int>()
-                }).ToListAsync();
+                    OwnedCommunitys = ownedCommunitys,
+                    JoinedCommunitys = joinedCommunitys,
+                    CommunityRequests = communityRequests
+                });
+            }
+
+            return results;
         }
 
         public async Task<bool> RegisterUser(UserDTO user)
