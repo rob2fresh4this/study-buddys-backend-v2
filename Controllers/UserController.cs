@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using study_buddys_backend_v2.Models.DTOS;
 using study_buddys_backend_v2.Services;
@@ -64,43 +61,6 @@ namespace study_buddys_backend_v2.Controllers
             string token = await _userServices.LoginUser(user);
             if (token != null) return Ok(new { Success = true, Token = token });
             return BadRequest(new { Success = false });
-        }
-
-        [HttpPut("EditUserCommunities/{id}")]
-        public async Task<IActionResult> EditUserCommunities(int id, [FromBody] EditCommunitiesDTO editCommunities)
-        {
-            var success = await _userServices.EditUserCommunitiesAsync(id, editCommunities.OwnedCommunityIds, editCommunities.JoinedCommunityIds, editCommunities.CommunityRequestIds);
-
-            if (!success)
-            {
-                return BadRequest(new { Success = false, Message = "Failed to update user communities" });
-            }
-            return Ok(new { Success = true, Message = "User communities updated successfully" });
-        }
-
-        [HttpPost("AddCommunityToUser/{id}")]
-        public async Task<IActionResult> AddCommunityToUser(int id, int communityId)
-        {
-            var success = await _userServices.AddCommunityToUserAsync(id, communityId);
-
-            if (!success)
-            {
-                return BadRequest(new { Success = false, Message = "Failed to add community to user" });
-            }
-            return Ok(new { Success = true, Message = "Community added to user successfully" });
-        }
-
-
-        [HttpDelete("RemoveCommunityFromUser/{id}/{communityId}")]
-        public async Task<IActionResult> RemoveCommunityFromUser(int id, int communityId)
-        {
-            var success = await _userServices.RemoveCommunityFromUserAsync(id, communityId);
-
-            if (!success)
-            {
-                return BadRequest(new { Success = false, Message = "Failed to remove community from user" });
-            }
-            return Ok(new { Success = true, Message = "Community removed from user successfully" });
         }
 
         
