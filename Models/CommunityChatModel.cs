@@ -13,8 +13,5 @@ namespace study_buddys_backend_v2.Models
         public bool IsEdited { get; set; } = false; // True if the message was edited
 
 
-        // 🧪 Beta Features - Not required for my MVP
-        // public int? ReplyToMessageId { get; set; } // For threading (beta)
-        // public Dictionary<string, int> Reactions { get; set; } = new(); // Emoji reactions (beta)
     }
 }

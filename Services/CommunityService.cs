@@ -17,14 +17,6 @@ namespace study_buddys_backend_v2.Services
             _hubContext = hubContext;
         }
 
-        // public async Task<List<CommunityModel>> GetAllCommunitiesAsync()
-        // {
-        //     return await _dataContext.Communitys
-        //     .Include(c => c.CommunityChats.Where(c => !c.IsDeleted)) // Include chats
-        //     .Include(c => c.CommunityMembers) // Include members if needed
-        //     .Where(c => !c.CommunityIsDeleted) // Exclude deleted communities
-        //     .ToListAsync();
-        // }
 
         public async Task<List<object>> GetAllCommunitiesAsync()
         {
