@@ -12,6 +12,6 @@ namespace study_buddys_backend_v2.Models
         public bool IsPinned { get; set; } = false; // True if the message is pinned
         public bool IsEdited { get; set; } = false; // True if the message was edited
 
-
+        public int? MessageReplyedToMessageId { get; set; }
     }
 }

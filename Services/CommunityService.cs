@@ -205,7 +205,8 @@ namespace study_buddys_backend_v2.Services
                     mediaUrl = chat.MediaUrl,
                     isDeleted = chat.IsDeleted,
                     isPinned = chat.IsPinned,
-                    isEdited = chat.IsEdited
+                    isEdited = chat.IsEdited,
+                    messageReplyedToMessageId = chat.MessageReplyedToMessageId
                 };
             }).ToList();
 
@@ -363,12 +364,23 @@ namespace study_buddys_backend_v2.Services
 
             if (community == null) return false;
 
+            // If the message is a reply, ensure the referenced message exists
+            if (chat.MessageReplyedToMessageId.HasValue)
+            {
+                var originalMessage = community.CommunityChats
+                    .FirstOrDefault(c => c.Id == chat.MessageReplyedToMessageId.Value);
+
+                if (originalMessage == null) return false; // If the original message doesn't exist, return false
+            }
+
             community.CommunityChats.Add(chat);
             await _dataContext.SaveChangesAsync(); // Save changes to the database
             await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("ReceiveNewChat", chat);
 
             return true;
         }
+
+
 
         public async Task<bool> EditCommunityChatAsync(int communityId, int chatId, string newMessage)
         {
