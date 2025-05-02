@@ -145,8 +145,7 @@ namespace study_buddys_backend_v2.Controllers
             {
                 // Fetch the community again to check if the chat exists
                 var community = await _communityServices.GetCommunityByIdAsync(communityId);
-                Console.WriteLine($"Community has {community?.CommunityChats.Count} chats.");
-                return Ok(new { Success = true });
+                return Ok(new { Success = true, Community = community });
             }
 
             return BadRequest(new { Success = false, message = "Failed to create community chat" });
