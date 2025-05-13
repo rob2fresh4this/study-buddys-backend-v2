@@ -242,7 +242,7 @@ namespace study_buddys_backend_v2.Services
                 community.CommunityRequests = new List<int>();
             }
 
-            if (!community.CommunityRequests.Contains(userId))
+            if (!community.CommunityRequests.Contains(userId) && !community.CommunityMembers.Any(m => m.UserId == userId))
             {
                 community.CommunityRequests.Add(userId);
                 _dataContext.Communitys.Update(community); // Explicit update
