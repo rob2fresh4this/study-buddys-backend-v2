@@ -45,6 +45,11 @@ namespace study_buddys_backend_v2.Services
                     .ToList();
                 var communityRequests = communities.Where(c => c.CommunityRequests.Any(r => r == user.Id)).Select(c => c.Id).ToList();
 
+                // Filter out communities where the user is the owner from the joined communities
+                var filterOutOwnersFromJoinedCommunitys = joinedCommunitys
+                    .Where(c => !ownedCommunitys.Contains(c))
+                    .ToList();
+
                 results.Add(new UserInfoDTO
                 {
                     Id = user.Id,
@@ -52,7 +57,7 @@ namespace study_buddys_backend_v2.Services
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     OwnedCommunitys = ownedCommunitys,
-                    JoinedCommunitys = joinedCommunitys,
+                    JoinedCommunitys = filterOutOwnersFromJoinedCommunitys,
                     CommunityRequests = communityRequests
                 });
             }
@@ -144,25 +149,30 @@ namespace study_buddys_backend_v2.Services
         public async Task<UserInfoDTO> GetUserByIdAsync(int id)
         {
             var user = await _dataContext.Users
-                .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return null;
 
             var ownedCommunities = await _dataContext.Communitys
-                .Where(c => c.CommunityOwnerID == user.Id)
-                .Select(c => c.Id)
-                .ToListAsync();
+            .Where(c => c.CommunityOwnerID == user.Id)
+            .Select(c => c.Id)
+            .ToListAsync();
 
             var joinedCommunities = await _dataContext.Communitys
-                .Include(c => c.CommunityMembers)
-                .Where(c => c.CommunityMembers.Any(m => m.UserId == user.Id))
-                .Select(c => c.Id)
-                .ToListAsync();
+            .Include(c => c.CommunityMembers)
+            .Where(c => c.CommunityMembers.Any(m => m.UserId == user.Id))
+            .Select(c => c.Id)
+            .ToListAsync();
 
             var communityRequests = await _dataContext.Communitys
-                .Where(c => c.CommunityRequests.Contains(user.Id))
-                .Select(c => c.Id)
-                .ToListAsync();
+            .Where(c => c.CommunityRequests.Contains(user.Id))
+            .Select(c => c.Id)
+            .ToListAsync();
+
+            // Filter out communities where the user is the owner from the joined communities
+            var filterOutOwnersFromJoinedCommunities = joinedCommunities
+            .Where(c => !ownedCommunities.Contains(c))
+            .ToList();
 
             var userInfo = new UserInfoDTO
             {
@@ -171,7 +181,7 @@ namespace study_buddys_backend_v2.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 OwnedCommunitys = ownedCommunities,
-                JoinedCommunitys = joinedCommunities,
+                JoinedCommunitys = filterOutOwnersFromJoinedCommunities, // Use the filtered list
                 CommunityRequests = communityRequests
             };
 
@@ -201,6 +211,11 @@ namespace study_buddys_backend_v2.Services
                 .Select(c => c.Id)
                 .ToListAsync();
 
+            // Filter out communities where the user is the owner from the joined communities
+            var filterOutOwnersFromJoinedCommunities = joinedCommunities
+            .Where(c => !ownedCommunities.Contains(c))
+            .ToList();
+
             var userInfo = new UserInfoDTO
             {
                 Id = user.Id,
@@ -208,7 +223,7 @@ namespace study_buddys_backend_v2.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 OwnedCommunitys = ownedCommunities,
-                JoinedCommunitys = joinedCommunities,
+                JoinedCommunitys = filterOutOwnersFromJoinedCommunities,
                 CommunityRequests = communityRequests
             };
 
