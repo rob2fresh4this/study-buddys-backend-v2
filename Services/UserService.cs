@@ -30,8 +30,8 @@ namespace study_buddys_backend_v2.Services
             var communities = await _dataContext.Communitys.ToListAsync();
 
             var communities1 = await _dataContext.Communitys
-        .Include(c => c.CommunityMembers) // Ensure CommunityMembers are included
-        .ToListAsync();
+            .Include(c => c.CommunityMembers) // Ensure CommunityMembers are included
+            .ToListAsync();
 
             var users = await _dataContext.Users.ToListAsync();
 
@@ -141,32 +141,78 @@ namespace study_buddys_backend_v2.Services
             }
         }
 
-        public async Task<UserModels> GetUserByIdAsync(int id)
-        {
-            return await _dataContext.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<UserInfoDTO> GetAllUserInfoAsync(string userName)
+        public async Task<UserInfoDTO> GetUserByIdAsync(int id)
         {
             var user = await _dataContext.Users
-                .Where(u => u.Username == userName)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            if (user == null)
-                return null;  // User not found
+            if (user == null) return null;
 
-            // Map the user data to the UserInfoDto
-            return new UserInfoDTO
+            var ownedCommunities = await _dataContext.Communitys
+                .Where(c => c.CommunityOwnerID == user.Id)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var joinedCommunities = await _dataContext.Communitys
+                .Include(c => c.CommunityMembers)
+                .Where(c => c.CommunityMembers.Any(m => m.UserId == user.Id))
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var communityRequests = await _dataContext.Communitys
+                .Where(c => c.CommunityRequests.Contains(user.Id))
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var userInfo = new UserInfoDTO
             {
                 Id = user.Id,
                 Username = user.Username,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                OwnedCommunitys = user.OwnedCommunitys ?? new List<int>(),
-                JoinedCommunitys = user.JoinedCommunitys ?? new List<int>(),
-                CommunityRequests = user.CommunityRequests ?? new List<int>()
+                OwnedCommunitys = ownedCommunities,
+                JoinedCommunitys = joinedCommunities,
+                CommunityRequests = communityRequests
             };
 
+            return userInfo;
+        }
+
+        public async Task<UserInfoDTO> GetAllUserInfoAsync(string username)
+        {
+            var user = await _dataContext.Users
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user == null) return null;
+
+            var ownedCommunities = await _dataContext.Communitys
+                .Where(c => c.CommunityOwnerID == user.Id)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var joinedCommunities = await _dataContext.Communitys
+                .Include(c => c.CommunityMembers)
+                .Where(c => c.CommunityMembers.Any(m => m.UserId == user.Id))
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var communityRequests = await _dataContext.Communitys
+                .Where(c => c.CommunityRequests.Contains(user.Id))
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var userInfo = new UserInfoDTO
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                OwnedCommunitys = ownedCommunities,
+                JoinedCommunitys = joinedCommunities,
+                CommunityRequests = communityRequests
+            };
+
+            return userInfo;
         }
     }
 }
