@@ -187,6 +187,36 @@ namespace study_buddys_backend_v2.Migrations
                     b.ToTable("DirectMessages");
                 });
 
+            modelBuilder.Entity("study_buddys_backend_v2.Models.ReactionsDTO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CommunityChatModelId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reaction")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommunityChatModelId");
+
+                    b.ToTable("ReactionsDTO");
+                });
+
             modelBuilder.Entity("study_buddys_backend_v2.Models.UserModels", b =>
                 {
                     b.Property<int>("Id")
@@ -236,6 +266,18 @@ namespace study_buddys_backend_v2.Migrations
                     b.HasOne("study_buddys_backend_v2.Models.CommunityModel", null)
                         .WithMany("CommunityMembers")
                         .HasForeignKey("CommunityModelId");
+                });
+
+            modelBuilder.Entity("study_buddys_backend_v2.Models.ReactionsDTO", b =>
+                {
+                    b.HasOne("study_buddys_backend_v2.Models.CommunityChatModel", null)
+                        .WithMany("Reactions")
+                        .HasForeignKey("CommunityChatModelId");
+                });
+
+            modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityChatModel", b =>
+                {
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("study_buddys_backend_v2.Models.CommunityModel", b =>
