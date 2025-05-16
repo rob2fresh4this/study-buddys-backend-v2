@@ -47,7 +47,7 @@ namespace study_buddys_backend_v2.Controllers
         }
 
         [Authorize]
-        [HttpPut("updateCommunity")]        
+        [HttpPut("updateCommunity")]
         public async Task<IActionResult> UpdateCommunity([FromBody] CommunityModel updatedCommunity)
         {
             var existingCommunity = await _communityServices.GetCommunityByIdAsync(updatedCommunity.Id);
@@ -185,6 +185,30 @@ namespace study_buddys_backend_v2.Controllers
             }
 
             return BadRequest(new { Success = false, message = "Failed to delete community post" });
+        }
+
+        // [Authorize]
+        [HttpPost("addReaction/{communityId}/{chatId}/{userId}")]
+        public async Task<IActionResult> AddReaction(int communityId, int chatId, int userId, [FromBody] string reaction)
+        {
+            var success = await _communityServices.AddReactionAsync(communityId, chatId, userId, reaction);
+            if (success)
+            {
+                return Ok(new { Success = true });
+            }
+            return BadRequest(new { Success = false, message = "User already reacted or failed to add reaction" });
+        }
+
+        // [Authorize]
+        [HttpPost("editOrRemoveReaction/{chatId}/{userId}")]
+        public async Task<IActionResult> EditOrRemoveReaction(int chatId, int userId, [FromBody] string newReaction)
+        {
+            var success = await _communityServices.EditAndOrRemoveReactionAsync(chatId, userId, newReaction);
+            if (success)
+            {
+                return Ok(new { Success = true });
+            }
+            return BadRequest(new { Success = false, message = "Failed to edit or remove reaction" });
         }
 
         [Authorize]

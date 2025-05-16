@@ -22,11 +22,12 @@ namespace study_buddys_backend_v2.Services
         {
             var communities = await _dataContext.Communitys
                 .Include(c => c.CommunityChats.Where(chat => !chat.IsDeleted))
+                    .ThenInclude(chat => chat.Reactions) // Include reactions if you want to show them
                 .Include(c => c.CommunityMembers)
                 .Where(c => !c.CommunityIsDeleted)
                 .ToListAsync();
 
-            var users = await _dataContext.Users.ToListAsync(); // Grab all users to prevent repeated queries
+            var users = await _dataContext.Users.ToListAsync();
 
             var result = new List<object>();
 
@@ -44,7 +45,7 @@ namespace study_buddys_backend_v2.Services
                         userId = member.UserId,
                         role = member.Role,
                         firstName = user?.FirstName ?? "no name",
-                        lastName = user?.LastName ?? "no name   "
+                        lastName = user?.LastName ?? "no name"
                     };
                 }).ToList();
 
@@ -59,8 +60,17 @@ namespace study_buddys_backend_v2.Services
                         message = chat.Message,
                         timestamp = chat.Timestamp,
                         mediaUrl = chat.MediaUrl,
+                        reactions = chat.Reactions?.Select(r => new
+                        {
+                            id = r.Id,
+                            userId = r.UserId,
+                            reaction = r.Reaction,
+                            createdAt = r.CreatedAt
+                        }).ToList(),
                         isPinned = chat.IsPinned,
-                        isEdited = chat.IsEdited
+                        isEdited = chat.IsEdited,
+                        isDeleted = chat.IsDeleted,
+                        messageReplyedToMessageId = chat.MessageReplyedToMessageId
                     };
                 }).ToList();
 
@@ -169,6 +179,7 @@ namespace study_buddys_backend_v2.Services
         {
             var community = await _dataContext.Communitys
                 .Include(c => c.CommunityChats.Where(chat => !chat.IsDeleted))
+                    .ThenInclude(chat => chat.Reactions)
                 .Include(c => c.CommunityMembers)
                 .FirstOrDefaultAsync(c => c.Id == communityId);
 
@@ -203,6 +214,13 @@ namespace study_buddys_backend_v2.Services
                     message = chat.Message,
                     timestamp = chat.Timestamp,
                     mediaUrl = chat.MediaUrl,
+                    reactions = chat.Reactions?.Select(r => new
+                    {
+                        id = r.Id,
+                        userId = r.UserId,
+                        reaction = r.Reaction,
+                        createdAt = r.CreatedAt
+                    }).ToList(),
                     isDeleted = chat.IsDeleted,
                     isPinned = chat.IsPinned,
                     isEdited = chat.IsEdited,
@@ -455,6 +473,95 @@ namespace study_buddys_backend_v2.Services
             await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("CommunityDeletedStatus", communityId, isDeleted);
             return await _dataContext.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> AddReactionAsync(int communityId, int chatId, int userId, string reaction)
+        {
+            var community = await _dataContext.Communitys
+                .Include(c => c.CommunityChats)
+                    .ThenInclude(chat => chat.Reactions)
+                .FirstOrDefaultAsync(c => c.Id == communityId);
+
+            if (community == null) return false;
+
+            var chat = community.CommunityChats.FirstOrDefault(c => c.Id == chatId);
+            if (chat == null) return false;
+
+            // Check if the user already added a reaction to this chat
+            if (chat.Reactions.Any(r => r.UserId == userId))
+            {
+                return false; // User already reacted
+            }
+
+            var newReaction = new ReactionsDTO
+            {
+                PostId = chatId,
+                UserId = userId,
+                Reaction = reaction,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            chat.Reactions.Add(newReaction);
+
+            await _dataContext.SaveChangesAsync();
+
+            await _hubContext.Clients.Group($"Community-{communityId}").SendAsync("ReactionAdded", chatId, newReaction);
+
+            return true;
+        }
+
+        public async Task<bool> EditAndOrRemoveReactionAsync(int chatId, int userId, string newReaction)
+        {
+            // Find the community that contains the chat
+            var community = await _dataContext.Communitys
+                .Include(c => c.CommunityChats)
+                    .ThenInclude(chat => chat.Reactions)
+                .FirstOrDefaultAsync(c => c.CommunityChats.Any(chat => chat.Id == chatId));
+
+            if (community == null) return false;
+
+            var chat = community.CommunityChats.FirstOrDefault(c => c.Id == chatId);
+            if (chat == null) return false;
+
+            var reaction = chat.Reactions.FirstOrDefault(r => r.UserId == userId);
+            if (reaction == null)
+            {
+                // Optionally, add a new reaction if not found
+                if (!string.IsNullOrEmpty(newReaction))
+                {
+                    var newReactionObj = new ReactionsDTO
+                    {
+                        PostId = chatId,
+                        UserId = userId,
+                        Reaction = newReaction,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    chat.Reactions.Add(newReactionObj);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(newReaction))
+                {
+                    // Remove reaction
+                    chat.Reactions.Remove(reaction);
+                }
+                else
+                {
+                    // Edit reaction
+                    reaction.Reaction = newReaction;
+                }
+            }
+
+            await _dataContext.SaveChangesAsync();
+            await _hubContext.Clients.Group($"Community-{community.Id}").SendAsync("ReactionUpdated", chatId, userId, newReaction);
+
+            return true;
+        }
+
 
     }
 }
