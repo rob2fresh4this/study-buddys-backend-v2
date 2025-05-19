@@ -187,7 +187,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to delete community post" });
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpPost("addReaction/{communityId}/{chatId}/{userId}")]
         public async Task<IActionResult> AddReaction(int communityId, int chatId, int userId, [FromBody] string reaction)
         {
@@ -199,7 +199,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "User already reacted or failed to add reaction" });
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpPost("editOrRemoveReaction/{chatId}/{userId}")]
         public async Task<IActionResult> EditOrRemoveReaction(int chatId, int userId, [FromBody] string newReaction)
         {
