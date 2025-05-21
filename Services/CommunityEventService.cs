@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using study_buddys_backend_v2.Context;
 using study_buddys_backend_v2.Hubs;
 using study_buddys_backend_v2.Models;
+using study_buddys_backend_v2.Models.DTOS;
 
 namespace study_buddys_backend_v2.Services
 {
@@ -17,22 +18,100 @@ namespace study_buddys_backend_v2.Services
             _hubContext = hubContext;
         }
 
-        public async Task<List<CommunityEventsModel>> GetAllEventsAsync()
+        public async Task<List<object>> GetAllEventsAsync()
         {
-            return await _context.CommunityEvents
-            .Where(e => !e.EventIsCancelled)
-            .Include(e => e.EventOrganizers)
-            .Include(e => e.EventParticipants)
-            .ToListAsync();
+            var events = await _context.CommunityEvents
+                .Where(e => !e.EventIsCancelled)
+                .Include(e => e.EventOrganizers)
+                .Include(e => e.EventParticipants)
+                .ToListAsync();
+
+            var users = await _context.Users.ToListAsync();
+
+            var enriched = events.Select(ev => new
+            {
+                id = ev.Id,
+                communityId = ev.CommunityId,
+                eventName = ev.EventName,
+                eventDescription = ev.EventDescription,
+                eventDate = ev.EventDate,
+                eventUrl = ev.EventUrl,
+                eventLocation = ev.EventLocation,
+                maxParticipants = ev.MaxParticipants,
+                currentParticipants = ev.CurrentParticipants,
+                eventIsPublic = ev.EventIsPublic,
+                eventIsCancelled = ev.EventIsCancelled,
+                eventOrganizers = ev.EventOrganizers?.Select(org =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == org.UserId);
+                    return new
+                    {
+                        userId = org.UserId,
+                        firstName = user?.FirstName ?? "no name",
+                        lastName = user?.LastName ?? "no name"
+                    };
+                }).ToList(),
+                eventParticipants = ev.EventParticipants?.Select(part =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == part.UserId);
+                    return new
+                    {
+                        userId = part.UserId,
+                        firstName = user?.FirstName ?? "no name",
+                        lastName = user?.LastName ?? "no name"
+                    };
+                }).ToList()
+            }).ToList();
+
+            return enriched.Cast<object>().ToList();
         }
 
-        public async Task<List<CommunityEventsModel>> GetEventsByCommunityIdAsync(int communityId)
+        public async Task<List<object>> GetEventsByCommunityIdAsync(int communityId)
         {
-            return await _context.CommunityEvents
-            .Where(e => e.CommunityId == communityId && !e.EventIsCancelled)
-            .Include(e => e.EventOrganizers)
-            .Include(e => e.EventParticipants)
-            .ToListAsync();
+            var events = await _context.CommunityEvents
+                .Where(e => e.CommunityId == communityId && !e.EventIsCancelled)
+                .Include(e => e.EventOrganizers)
+                .Include(e => e.EventParticipants)
+                .ToListAsync();
+
+            var users = await _context.Users.ToListAsync();
+
+            var enriched = events.Select(ev => new
+            {
+                id = ev.Id,
+                communityId = ev.CommunityId,
+                eventName = ev.EventName,
+                eventDescription = ev.EventDescription,
+                eventDate = ev.EventDate,
+                eventUrl = ev.EventUrl,
+                eventLocation = ev.EventLocation,
+                maxParticipants = ev.MaxParticipants,
+                currentParticipants = ev.CurrentParticipants,
+                eventIsPublic = ev.EventIsPublic,
+                eventIsCancelled = ev.EventIsCancelled,
+                eventOrganizers = ev.EventOrganizers?.Select(org =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == org.UserId);
+                    return new
+                    {
+                        userId = org.UserId,
+                        firstName = user?.FirstName ?? "no name",
+                        lastName = user?.LastName ?? "no name"
+                    };
+                }).ToList(),
+                eventParticipants = ev.EventParticipants?.Select(part =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == part.UserId);
+                    return new
+                    {
+                        userId = part.UserId,
+                        firstName = user?.FirstName ?? "no name",
+                        lastName = user?.LastName ?? "no name"
+                    };
+                }).ToList()
+            }).ToList();
+
+            return enriched.Cast<object>().ToList();
         }
 
         public async Task<CommunityEventsModel?> CreateEventAsync(CommunityEventsModel eventModel)
@@ -84,6 +163,41 @@ namespace study_buddys_backend_v2.Services
             }
 
             return false;
+        }
+
+        public async Task<bool> AddParticipantsAsync(int eventId, int userId)
+        {
+            var eventToUpdate = await _context.CommunityEvents
+                .Include(e => e.EventParticipants)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
+            if (eventToUpdate == null) return false;
+
+            var userToAdd = await _context.Users.FindAsync(userId);
+            if (userToAdd == null) return false;
+
+            // Prevent duplicate participants
+            if (eventToUpdate.EventParticipants != null && eventToUpdate.EventParticipants.Any(p => p.UserId == userId))
+                return false;
+
+            // Add participant
+            var newParticipant = new EventParticipantDTO
+            {
+                UserId = userId,
+            };
+
+            if (eventToUpdate.EventParticipants == null)
+                eventToUpdate.EventParticipants = new List<EventParticipantDTO>();
+
+            eventToUpdate.EventParticipants.Add(newParticipant);
+            eventToUpdate.CurrentParticipants++;
+
+            await _context.SaveChangesAsync();
+
+            // Optionally notify via SignalR
+            await _hubContext.Clients.Group(eventToUpdate.CommunityId.ToString())
+                .SendAsync("EventParticipantAdded", eventId, userId);
+
+            return true;
         }
     }
 }

@@ -44,6 +44,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CommunityService>();
+builder.Services.AddScoped<CommunityEventService>();
 
 builder.Services.AddSignalR(); // Add this
 builder.Services.AddSingleton<UserConnectionManager>(); // And this
