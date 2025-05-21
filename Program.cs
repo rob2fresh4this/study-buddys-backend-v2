@@ -94,8 +94,17 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+
+    // Enable serving static files like your CSS
+    app.UseStaticFiles();
+
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Study Buddys API V1");
+        c.InjectStylesheet("/swagger-ui/custom-swagger-theme.css");
+    });
 }
+
 
 app.UseHttpsRedirection();
 
