@@ -229,5 +229,25 @@ namespace study_buddys_backend_v2.Services
 
             return userInfo;
         }
+
+        public async Task<bool> EditUserInfoAsync(int userId, string newFirstName, string newLastName, string newUsername)
+        {
+            var user = await _dataContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return false;
+
+            // Optionally check if the new username is already taken by another user
+            if (!string.Equals(user.Username, newUsername, StringComparison.OrdinalIgnoreCase))
+            {
+                bool usernameExists = await _dataContext.Users.AnyAsync(u => u.Username == newUsername && u.Id != userId);
+                if (usernameExists) return false;
+            }
+
+            user.FirstName = newFirstName;
+            user.LastName = newLastName;
+            user.Username = newUsername;
+
+            await _dataContext.SaveChangesAsync();
+            return true;
+        }
     }
 }
