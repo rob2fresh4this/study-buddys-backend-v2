@@ -63,7 +63,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false });
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpPut("editUserInfo/{userId}")]
         public async Task<IActionResult> EditUserInfo(int userId, [FromBody] EditUserInfoDTO dto)
         {
@@ -73,7 +73,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "User not found or username already taken." });
         }
 
-        
+
 
 
     }

@@ -38,7 +38,7 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Events = events });
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpPost("createEvent")]
         public async Task<IActionResult> CreateEvent([FromBody] CommunityEventsModel eventModel)
         {
@@ -58,7 +58,7 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Event = updated });
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpPost("addParticipant/{eventId}/{userId}")]
         public async Task<IActionResult> AddParticipant(int eventId, int userId)
         {
@@ -70,7 +70,7 @@ namespace study_buddys_backend_v2.Controllers
             return BadRequest(new { Success = false, message = "Failed to add participant or participant already exists." });
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpDelete("deleteEvent/{communityId}/{eventId}")]
         public async Task<IActionResult> DeleteEvent(int communityId, int eventId)
         {
