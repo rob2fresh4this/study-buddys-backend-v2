@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\grijr\\VScode\\CodeStack 24-25\\Season 4 Fullstack Pratice\\study-buddys-backend-v2\\wwwroot\\swagger-ui\\custom-swagger-theme.css",
+      "PackagePath": "staticwebassets\\swagger-ui\\custom-swagger-theme.css"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.study-buddys-backend-v2.props",
+      "PackagePath": "build\\study-buddys-backend-v2.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.study-buddys-backend-v2.props",
+      "PackagePath": "buildMultiTargeting\\study-buddys-backend-v2.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.study-buddys-backend-v2.props",
+      "PackagePath": "buildTransitive\\study-buddys-backend-v2.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.study-buddys-backend-v2.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

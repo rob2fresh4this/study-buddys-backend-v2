@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using study_buddys_backend_v2.Hubs;
 using study_buddys_backend_v2.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace study_buddys_backend_v2.Controllers
 {
@@ -21,6 +22,7 @@ namespace study_buddys_backend_v2.Controllers
         }
 
         // GET: api/DirectMessages/{id}
+        [Authorize]
         [HttpGet("getAllUsersChats/{id}")]
         public async Task<ActionResult> getAllUsersChats(int id)
         {
@@ -68,6 +70,7 @@ namespace study_buddys_backend_v2.Controllers
 
 
         // POST: api/DirectMessages
+        [Authorize]
         [HttpPost("PostDirectMessage")]
         public async Task<ActionResult> PostDirectMessage(DirectMessageModel message)
         {
@@ -100,6 +103,8 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Message = responseMessage });
         }
 
+        // GET: api/DirectMessages/{id}
+        [Authorize]
         [HttpPut("EditMessage/{idOfMessage}")]
         public async Task<ActionResult> EditMessage(int idOfMessage, [FromBody] string newMessage)
         {
@@ -132,6 +137,8 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Message = "Message updated successfully." });
         }
 
+        // DELETE: api/DirectMessages/{id}
+        [Authorize]
         [HttpDelete("softDeleteMessage/{messageId}")]
         public async Task<ActionResult> SoftDeleteMessage(int messageId)
         {
@@ -153,6 +160,8 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Message = "Message soft deleted successfully." });
         }
 
+        // GET: api/DirectMessages/MarkAsRead/{messageId}/{senderBool}/{receiverBool}
+        [Authorize]
         [HttpGet("MarkAsRead/{messageId}/{senderBool}/{receiverBool}")]
         public async Task<ActionResult> MarkAsRead(int messageId, bool senderBool, bool receiverBool)
         {
