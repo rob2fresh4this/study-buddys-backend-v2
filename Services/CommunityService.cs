@@ -178,10 +178,10 @@ namespace study_buddys_backend_v2.Services
         public async Task<object?> GetCommunityByIdAsyncNEW(int communityId)
         {
             var community = await _dataContext.Communitys
-                .Include(c => c.CommunityChats.Where(chat => !chat.IsDeleted))
-                    .ThenInclude(chat => chat.Reactions)
-                .Include(c => c.CommunityMembers)
-                .FirstOrDefaultAsync(c => c.Id == communityId);
+            .Include(c => c.CommunityChats.Where(chat => !chat.IsDeleted))
+                .ThenInclude(chat => chat.Reactions)
+            .Include(c => c.CommunityMembers)
+            .FirstOrDefaultAsync(c => c.Id == communityId && !c.CommunityIsDeleted); // Exclude deleted communities
 
             if (community == null) return null;
 
@@ -192,57 +192,57 @@ namespace study_buddys_backend_v2.Services
 
             var enrichedMembers = community.CommunityMembers.Select(member =>
             {
-                var user = users.FirstOrDefault(u => u.Id == member.UserId);
-                return new
-                {
-                    id = member.Id,
-                    userId = member.UserId,
-                    role = member.Role,
-                    firstName = user?.FirstName ?? "no name",
-                    lastName = user?.LastName ?? "no name"
-                };
+            var user = users.FirstOrDefault(u => u.Id == member.UserId);
+            return new
+            {
+                id = member.Id,
+                userId = member.UserId,
+                role = member.Role,
+                firstName = user?.FirstName ?? "no name",
+                lastName = user?.LastName ?? "no name"
+            };
             }).ToList();
 
             var enrichedChats = community.CommunityChats.Select(chat =>
             {
-                var sender = users.FirstOrDefault(u => u.Id == chat.UserIdSender);
-                return new
+            var sender = users.FirstOrDefault(u => u.Id == chat.UserIdSender);
+            return new
+            {
+                id = chat.Id,
+                userIdSender = chat.UserIdSender,
+                userSenderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "no name",
+                message = chat.Message,
+                timestamp = chat.Timestamp,
+                mediaUrl = chat.MediaUrl,
+                reactions = chat.Reactions?.Select(r => new
                 {
-                    id = chat.Id,
-                    userIdSender = chat.UserIdSender,
-                    userSenderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "no name",
-                    message = chat.Message,
-                    timestamp = chat.Timestamp,
-                    mediaUrl = chat.MediaUrl,
-                    reactions = chat.Reactions?.Select(r => new
-                    {
-                        id = r.Id,
-                        userId = r.UserId,
-                        reaction = r.Reaction,
-                        createdAt = r.CreatedAt
-                    }).ToList(),
-                    isDeleted = chat.IsDeleted,
-                    isPinned = chat.IsPinned,
-                    isEdited = chat.IsEdited,
-                    messageReplyedToMessageId = chat.MessageReplyedToMessageId
-                };
+                id = r.Id,
+                userId = r.UserId,
+                reaction = r.Reaction,
+                createdAt = r.CreatedAt
+                }).ToList(),
+                isDeleted = chat.IsDeleted,
+                isPinned = chat.IsPinned,
+                isEdited = chat.IsEdited,
+                messageReplyedToMessageId = chat.MessageReplyedToMessageId
+            };
             }).ToList();
 
             return new
             {
-                id = community.Id,
-                communityOwnerID = community.CommunityOwnerID,
-                communityIsPublic = community.CommunityIsPublic,
-                communityIsDeleted = community.CommunityIsDeleted,
-                communityOwnerName = ownerFullName,
-                communityName = community.CommunityName,
-                communitySubject = community.CommunitySubject,
-                communityMemberCount = community.CommunityMembers.Count,
-                communityChats = enrichedChats,
-                communityMembers = enrichedMembers,
-                communityRequests = community.CommunityRequests,
-                communityDifficulty = community.CommunityDifficulty,
-                communityDescription = community.CommunityDescription
+            id = community.Id,
+            communityOwnerID = community.CommunityOwnerID,
+            communityIsPublic = community.CommunityIsPublic,
+            communityIsDeleted = community.CommunityIsDeleted,
+            communityOwnerName = ownerFullName,
+            communityName = community.CommunityName,
+            communitySubject = community.CommunitySubject,
+            communityMemberCount = community.CommunityMembers.Count,
+            communityChats = enrichedChats,
+            communityMembers = enrichedMembers,
+            communityRequests = community.CommunityRequests,
+            communityDifficulty = community.CommunityDifficulty,
+            communityDescription = community.CommunityDescription
             };
         }
 
@@ -560,6 +560,11 @@ namespace study_buddys_backend_v2.Services
             await _hubContext.Clients.Group($"Community-{community.Id}").SendAsync("ReactionUpdated", chatId, userId, newReaction);
 
             return true;
+        }
+
+        public async Task<List<CommunityModel>> GetAllCommunitiesUnrestrictedAsync()
+        {
+            return await _dataContext.Communitys.ToListAsync();
         }
 
 

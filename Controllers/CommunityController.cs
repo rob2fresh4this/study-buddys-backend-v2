@@ -222,5 +222,17 @@ namespace study_buddys_backend_v2.Controllers
 
             return BadRequest(new { Success = false, message = "Failed to delete community" });
         }
+
+        [Authorize]
+        [HttpGet("GetAllCommunitiesUnrestricted")]
+        public async Task<IActionResult> GetAllCommunitiesUnrestricted()
+        {
+            var communities = await _communityServices.GetAllCommunitiesUnrestrictedAsync();
+            if (communities == null || !communities.Any())
+            {
+                return BadRequest(new { Success = false, Message = "No communities found or error retrieving data" });
+            }
+            return Ok(new { Success = true, Communities = communities });
+        }
     }
 }
