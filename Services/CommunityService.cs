@@ -192,57 +192,57 @@ namespace study_buddys_backend_v2.Services
 
             var enrichedMembers = community.CommunityMembers.Select(member =>
             {
-            var user = users.FirstOrDefault(u => u.Id == member.UserId);
-            return new
-            {
-                id = member.Id,
-                userId = member.UserId,
-                role = member.Role,
-                firstName = user?.FirstName ?? "no name",
-                lastName = user?.LastName ?? "no name"
-            };
+                var user = users.FirstOrDefault(u => u.Id == member.UserId);
+                return new
+                {
+                    id = member.Id,
+                    userId = member.UserId,
+                    role = member.Role,
+                    firstName = user?.FirstName ?? "no name",
+                    lastName = user?.LastName ?? "no name"
+                };
             }).ToList();
 
             var enrichedChats = community.CommunityChats.Select(chat =>
             {
-            var sender = users.FirstOrDefault(u => u.Id == chat.UserIdSender);
-            return new
-            {
-                id = chat.Id,
-                userIdSender = chat.UserIdSender,
-                userSenderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "no name",
-                message = chat.Message,
-                timestamp = chat.Timestamp,
-                mediaUrl = chat.MediaUrl,
-                reactions = chat.Reactions?.Select(r => new
+                var sender = users.FirstOrDefault(u => u.Id == chat.UserIdSender);
+                return new
                 {
-                id = r.Id,
-                userId = r.UserId,
-                reaction = r.Reaction,
-                createdAt = r.CreatedAt
-                }).ToList(),
-                isDeleted = chat.IsDeleted,
-                isPinned = chat.IsPinned,
-                isEdited = chat.IsEdited,
-                messageReplyedToMessageId = chat.MessageReplyedToMessageId
-            };
+                    id = chat.Id,
+                    userIdSender = chat.UserIdSender,
+                    userSenderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "no name",
+                    message = chat.Message,
+                    timestamp = chat.Timestamp,
+                    mediaUrl = chat.MediaUrl,
+                    reactions = chat.Reactions?.Select(r => new
+                    {
+                        id = r.Id,
+                        userId = r.UserId,
+                        reaction = r.Reaction,
+                        createdAt = r.CreatedAt
+                    }).ToList(),
+                    isDeleted = chat.IsDeleted,
+                    isPinned = chat.IsPinned,
+                    isEdited = chat.IsEdited,
+                    messageReplyedToMessageId = chat.MessageReplyedToMessageId
+                };
             }).ToList();
 
             return new
             {
-            id = community.Id,
-            communityOwnerID = community.CommunityOwnerID,
-            communityIsPublic = community.CommunityIsPublic,
-            communityIsDeleted = community.CommunityIsDeleted,
-            communityOwnerName = ownerFullName,
-            communityName = community.CommunityName,
-            communitySubject = community.CommunitySubject,
-            communityMemberCount = community.CommunityMembers.Count,
-            communityChats = enrichedChats,
-            communityMembers = enrichedMembers,
-            communityRequests = community.CommunityRequests,
-            communityDifficulty = community.CommunityDifficulty,
-            communityDescription = community.CommunityDescription
+                id = community.Id,
+                communityOwnerID = community.CommunityOwnerID,
+                communityIsPublic = community.CommunityIsPublic,
+                communityIsDeleted = community.CommunityIsDeleted,
+                communityOwnerName = ownerFullName,
+                communityName = community.CommunityName,
+                communitySubject = community.CommunitySubject,
+                communityMemberCount = community.CommunityMembers.Count,
+                communityChats = enrichedChats,
+                communityMembers = enrichedMembers,
+                communityRequests = community.CommunityRequests,
+                communityDifficulty = community.CommunityDifficulty,
+                communityDescription = community.CommunityDescription
             };
         }
 
@@ -567,6 +567,37 @@ namespace study_buddys_backend_v2.Services
             return await _dataContext.Communitys.ToListAsync();
         }
 
+        public async Task<object> GetAllOwnersRequsdtsFromEachCommunityAsync(int userId)
+        {
+            var communities = await _dataContext.Communitys
+                .Include(c => c.CommunityMembers)
+                .Where(c => c.CommunityMembers.Any(m => m.UserId == userId && m.Role == "owner"))
+                .ToListAsync();
+
+            var users = await _dataContext.Users.ToListAsync();
+
+            var enrichedTable = new List<object>();// this table will have communityID, communityName, communityOwnerName, communityRequests
+            foreach (var community in communities)
+            {
+                var ownerUser = users.FirstOrDefault(u => u.Id == community.CommunityOwnerID);
+                string ownerFullName = ownerUser != null ? $"{ownerUser.FirstName} {ownerUser.LastName}" : "no name was found";
+
+                var validRequests = community.CommunityRequests != null
+                    ? community.CommunityRequests.Where(r => r >= 0).ToList()
+                    : new List<int>();
+
+                enrichedTable.Add(new
+                {
+                    communityId = community.Id,
+                    communityName = community.CommunityName,
+                    communityOwnerName = ownerFullName,
+                    communityRequestCount = $"there are {validRequests.Count} requests",
+                    communityRequestCountNumber = validRequests.Count,
+                    communityRequests = validRequests
+                });
+            }
+            return enrichedTable;
+        }
 
     }
 }

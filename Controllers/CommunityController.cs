@@ -234,5 +234,17 @@ namespace study_buddys_backend_v2.Controllers
             }
             return Ok(new { Success = true, Communities = communities });
         }
+
+        // [Authorize]
+        [HttpGet("GetAllOwnersRequsdtsFromEachCommunityAsync{userId}")]
+        public async Task<IActionResult> GetAllOwnersRequsdtsFromEachCommunityAsync(int userId)
+        {
+            var communities = await _communityServices.GetAllOwnersRequsdtsFromEachCommunityAsync(userId);
+            if (communities == null || !(communities is IEnumerable<object> enumerable) || !enumerable.Any())
+            {
+                return NotFound(new { Success = false, Message = "No communities found or error retrieving data" });
+            }
+            return Ok(new { Success = true, Communities = communities });
+        }
     }
 }
