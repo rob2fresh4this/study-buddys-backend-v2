@@ -59,7 +59,8 @@ builder.Services.AddCors(Options =>
         {
             policy.WithOrigins("http://localhost:3001", "http://localhost:3000", "https://study-buddies-frontend-seven.vercel.app")
                 .AllowAnyMethod()
-                .AllowAnyHeader();
+                .AllowAnyHeader()
+                .AllowCredentials();
         });
 });
 
