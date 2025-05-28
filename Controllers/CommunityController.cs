@@ -235,8 +235,8 @@ namespace study_buddys_backend_v2.Controllers
             return Ok(new { Success = true, Communities = communities });
         }
 
-        // [Authorize]
-        [HttpGet("GetAllOwnersRequsdtsFromEachCommunityAsync{userId}")]
+        [Authorize]
+        [HttpGet("GetAllOwnersRequsdtsFromEachCommunityAsync/{userId}")]
         public async Task<IActionResult> GetAllOwnersRequsdtsFromEachCommunityAsync(int userId)
         {
             var communities = await _communityServices.GetAllOwnersRequsdtsFromEachCommunityAsync(userId);
